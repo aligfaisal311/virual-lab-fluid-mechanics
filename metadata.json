@@ -1,0 +1,5 @@
+{
+  "name": "all fluid Lab",
+  "description": "An interactive virtual lab for exploring laminar and turbulent flow regimes using the Reynolds experiment.",
+  "requestFramePermissions": []
+}
