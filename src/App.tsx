@@ -40,6 +40,7 @@ import {
   ZAxis
 } from 'recharts';
 import confetti from 'canvas-confetti';
+import VenturiSimulation from './components/VenturiSimulation';
 
 // --- TYPES ---
 
@@ -91,6 +92,7 @@ const EXPERIMENTS = {
     sections: [
       "Learning Outcomes",
       "Introduction (Hook)",
+      "Exploration (Bernoulli)",
       "Theory: Energy Conservation",
       "Apparatus Details",
       "Simulation: Energy Gradient",
@@ -107,6 +109,7 @@ const EXPERIMENTS = {
     sections: [
       "Learning Outcomes",
       "Introduction",
+      "Exploration (Bernoulli)",
       "Theory: Bernoulli's Principle",
       "Venturimeter Apparatus",
       "Orifice Meter Apparatus",
@@ -174,7 +177,7 @@ export default function App() {
   const sectionNames = activeExp.sections;
 
   const [section, setSection] = useState(1);
-  const [maxSection, setMaxSection] = useState(1);
+  const [maxSection, setMaxSection] = useState(100);
   const [direction, setDirection] = useState(0);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isExpMenuOpen, setIsExpMenuOpen] = useState(false);
@@ -226,14 +229,13 @@ export default function App() {
   const switchExperiment = (id: 'reynolds' | 'venturi' | 'bernoulli') => {
     setActiveExpId(id);
     setSection(1);
-    setMaxSection(1);
+    setMaxSection(100);
     setDirection(0);
     setIsExpMenuOpen(false);
     setIsSidebarOpen(false);
   };
 
   const goToSection = (s: number) => {
-    if (s > maxSection) return;
     setDirection(s > section ? 1 : -1);
     setSection(s);
     setIsSidebarOpen(false);
@@ -309,27 +311,22 @@ export default function App() {
         
         <nav className="flex-1 overflow-y-auto p-3 space-y-1 custom-scrollbar">
           {sectionNames.map((name, i) => {
-            const isLocked = i + 1 > maxSection;
             return (
               <button
                 key={i}
                 onClick={() => goToSection(i + 1)}
-                disabled={isLocked}
                 className={`w-full text-left px-3 py-2.5 rounded-xl text-[11px] font-semibold transition-all flex items-center gap-2.5 group ${
                   section === i + 1 
                     ? 'bg-blue-50 text-blue-700 border border-blue-100 shadow-sm' 
-                    : isLocked 
-                      ? 'opacity-40 cursor-not-allowed'
-                      : 'text-slate-500 hover:bg-slate-50 hover:text-slate-700'
+                    : 'text-slate-500 hover:bg-slate-50 hover:text-slate-700'
                 }`}
               >
                 <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold transition-colors ${
                   section === i + 1 ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-400 group-hover:bg-slate-200'
                 }`}>
-                  {isLocked ? <Lock size={10} /> : i + 1}
+                  {i + 1}
                 </span>
                 <span className="truncate flex-1">{name}</span>
-                {isLocked && <Lock size={12} className="text-slate-300" />}
               </button>
             );
           })}
@@ -380,10 +377,10 @@ export default function App() {
             </button>
             <button 
               onClick={nextSection}
-              disabled={section === sectionNames.length || section >= maxSection}
+              disabled={section === sectionNames.length}
               className="p-2 rounded-lg hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
             >
-              {section >= maxSection ? <Lock size={20} className="text-slate-400" /> : <ChevronRight size={20} />}
+              <ChevronRight size={20} />
             </button>
           </div>
         </header>
@@ -403,12 +400,12 @@ export default function App() {
           </button>
           <button 
             onClick={nextSection}
-            disabled={section === sectionNames.length || section >= maxSection}
+            disabled={section === sectionNames.length}
             className="absolute right-0 inset-y-0 w-16 lg:w-32 z-20 cursor-e-resize group hidden md:flex items-center justify-center"
             aria-label="Next Slide"
           >
             <div className="p-3 bg-white/0 group-hover:bg-white/40 rounded-full transition-all text-slate-400 opacity-0 group-hover:opacity-100">
-              {section >= maxSection ? <Lock size={32} /> : <ChevronRight size={32} />}
+              <ChevronRight size={32} />
             </div>
           </button>
 
@@ -647,13 +644,14 @@ function BernoulliLab({ section, onNext, onPrev }: any) {
   switch (section) {
     case 1: return <BernoulliSection1 onNext={onNext} slidePrefix={prefix} />;
     case 2: return <BernoulliSection2 onNext={onNext} onPrev={onPrev} slidePrefix={prefix} />;
-    case 3: return <BernoulliSection3 onNext={onNext} onPrev={onPrev} slidePrefix={prefix} />;
-    case 4: return <BernoulliSection4 onNext={onNext} onPrev={onPrev} slidePrefix={prefix} />;
-    case 5: return <BernoulliSection5 onNext={onNext} onPrev={onPrev} slidePrefix={prefix} />;
-    case 6: return <BernoulliSection6 onNext={onNext} onPrev={onPrev} slidePrefix={prefix} />;
-    case 7: return <BernoulliSection7 onNext={onNext} onPrev={onPrev} slidePrefix={prefix} />;
-    case 8: return <BernoulliSection8 onNext={onNext} onPrev={onPrev} slidePrefix={prefix} />;
-    case 9: return <BernoulliSection9 onPrev={onPrev} slidePrefix={prefix} />;
+    case 3: return <VenturiSectionExploration onNext={onNext} onPrev={onPrev} slidePrefix={prefix} />;
+    case 4: return <BernoulliSection3 onNext={onNext} onPrev={onPrev} slidePrefix={prefix} />;
+    case 5: return <BernoulliSection4 onNext={onNext} onPrev={onPrev} slidePrefix={prefix} />;
+    case 6: return <BernoulliSection5 onNext={onNext} onPrev={onPrev} slidePrefix={prefix} />;
+    case 7: return <BernoulliSection6 onNext={onNext} onPrev={onPrev} slidePrefix={prefix} />;
+    case 8: return <BernoulliSection7 onNext={onNext} onPrev={onPrev} slidePrefix={prefix} />;
+    case 9: return <BernoulliSection8 onNext={onNext} onPrev={onPrev} slidePrefix={prefix} />;
+    case 10: return <BernoulliSection9 onPrev={onPrev} slidePrefix={prefix} />;
     default: return null;
   }
 }
@@ -1036,8 +1034,8 @@ function BernoulliSection6({ onNext, onPrev }: any) {
         </div>
         <div className="mt-10 flex justify-between">
           <button onClick={onPrev} className="btn-secondary">Back</button>
-          <button onClick={onNext} className="btn-primary" disabled={trials.length < 3}>
-            {trials.length < 3 ? <Lock size={18} className="mr-2 inline" /> : <CheckCircle2 size={18} className="mr-2 inline" />}
+          <button onClick={onNext} className="btn-primary">
+            <CheckCircle2 size={18} className="mr-2 inline" />
             Verify Total Head
           </button>
         </div>
@@ -1153,7 +1151,7 @@ function BernoulliSection8({ onNext, onPrev }: any) {
         </div>
         <div className="mt-10 flex justify-between">
           <button onClick={onPrev} className="btn-secondary">Back</button>
-          <button onClick={onNext} className="btn-primary" disabled={!isComplete}>Final Summary</button>
+          <button onClick={onNext} className="btn-primary">Final Summary</button>
         </div>
       </div>
     </motion.div>
@@ -1203,14 +1201,15 @@ function VenturiLab({ section, onNext, onPrev, flowRate, setFlowRate, trials, se
   switch (section) {
     case 1: return <VenturiSection1 onNext={onNext} slidePrefix={prefix} />;
     case 2: return <VenturiSection2 onNext={onNext} onPrev={onPrev} slidePrefix={prefix} />;
-    case 3: return <VenturiSection3 onNext={onNext} onPrev={onPrev} slidePrefix={prefix} />;
-    case 4: return <VenturiSection4 onNext={onNext} onPrev={onPrev} slidePrefix={prefix} />;
-    case 5: return <VenturiSection5 onNext={onNext} onPrev={onPrev} slidePrefix={prefix} />;
-    case 6: return <VenturiSection6 onNext={onNext} onPrev={onPrev} flowRate={flowRate} setFlowRate={setFlowRate} slidePrefix={prefix} />;
-    case 7: return <VenturiSection7 onNext={onNext} onPrev={onPrev} trials={trials} setTrials={setTrials} flowRate={flowRate} slidePrefix={prefix} />;
-    case 8: return <VenturiSection8 onNext={onNext} onPrev={onPrev} trials={trials} slidePrefix={prefix} />;
-    case 9: return <VenturiSection9 onNext={onNext} onPrev={onPrev} slidePrefix={prefix} />;
-    case 10: return <VenturiSection10 onPrev={onPrev} slidePrefix={prefix} />;
+    case 3: return <VenturiSectionExploration onNext={onNext} onPrev={onPrev} slidePrefix={prefix} />;
+    case 4: return <VenturiSection3 onNext={onNext} onPrev={onPrev} slidePrefix={prefix} />;
+    case 5: return <VenturiSection4 onNext={onNext} onPrev={onPrev} slidePrefix={prefix} />;
+    case 6: return <VenturiSection5 onNext={onNext} onPrev={onPrev} slidePrefix={prefix} />;
+    case 7: return <VenturiSection6 onNext={onNext} onPrev={onPrev} flowRate={flowRate} setFlowRate={setFlowRate} slidePrefix={prefix} />;
+    case 8: return <VenturiSection7 onNext={onNext} onPrev={onPrev} trials={trials} setTrials={setTrials} flowRate={flowRate} slidePrefix={prefix} />;
+    case 9: return <VenturiSection8 onNext={onNext} onPrev={onPrev} trials={trials} slidePrefix={prefix} />;
+    case 10: return <VenturiSection9 onNext={onNext} onPrev={onPrev} slidePrefix={prefix} />;
+    case 11: return <VenturiSection10 onPrev={onPrev} slidePrefix={prefix} />;
     default: return null;
   }
 }
@@ -1287,6 +1286,91 @@ function VenturiSection2({ onNext, onPrev, slidePrefix }: any) {
           <p className="text-amber-800 font-medium italic">
             "We use the fluid's own energy changes to tell us its speed."
           </p>
+        </div>
+      </div>
+    )
+  ];
+
+  return (
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
+      <div className="bg-white rounded-3xl p-8 lg:p-12 shadow-sm border border-slate-200">
+        <CardStepper cards={cards} onComplete={onNext} onPrevSection={onPrev} slidePrefix={slidePrefix} />
+      </div>
+    </motion.div>
+  );
+}
+
+function VenturiSectionExploration({ onNext, onPrev, slidePrefix }: any) {
+  const [params, setParams] = useState({
+    constrictionRatio: 0.5,
+    inletVelocity: 2.0,
+    fluidDensity: 1000
+  });
+
+  const cards = [
+    (
+      <div className="space-y-6">
+        <h2 className="text-3xl font-bold mb-4">Interactive Exploration</h2>
+        <p className="text-slate-600 text-sm">
+          Adjust the parameters below to see how the pipe geometry and fluid properties affect velocity and pressure.
+        </p>
+        
+        <div className="grid lg:grid-cols-2 gap-8 items-start">
+          <div className="space-y-6 p-6 bg-slate-50 rounded-2xl border border-slate-200">
+            <div className="space-y-4">
+              <label className="block">
+                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Constriction Ratio (A2/A1)</span>
+                <input 
+                  type="range" min="0.3" max="0.8" step="0.05" 
+                  value={params.constrictionRatio} 
+                  onChange={(e) => setParams(p => ({ ...p, constrictionRatio: parseFloat(e.target.value) }))}
+                  className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600 mt-2"
+                />
+                <div className="flex justify-between text-[10px] font-mono text-slate-400 mt-1">
+                  <span>Narrow (0.3)</span>
+                  <span className="text-indigo-600 font-bold">{params.constrictionRatio.toFixed(2)}</span>
+                  <span>Wide (0.8)</span>
+                </div>
+              </label>
+
+              <label className="block">
+                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Inlet Velocity (v1)</span>
+                <input 
+                  type="range" min="0.5" max="5.0" step="0.1" 
+                  value={params.inletVelocity} 
+                  onChange={(e) => setParams(p => ({ ...p, inletVelocity: parseFloat(e.target.value) }))}
+                  className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600 mt-2"
+                />
+                <div className="flex justify-between text-[10px] font-mono text-slate-400 mt-1">
+                  <span>Slow (0.5 m/s)</span>
+                  <span className="text-indigo-600 font-bold">{params.inletVelocity.toFixed(1)} m/s</span>
+                  <span>Fast (5.0 m/s)</span>
+                </div>
+              </label>
+
+              <label className="block">
+                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Fluid Density (ρ)</span>
+                <select 
+                  value={params.fluidDensity} 
+                  onChange={(e) => setParams(p => ({ ...p, fluidDensity: parseInt(e.target.value) }))}
+                  className="w-full mt-2 p-2 bg-white border border-slate-200 rounded-lg text-sm font-medium focus:ring-2 focus:ring-indigo-500 outline-none"
+                >
+                  <option value="800">Oil (800 kg/m³)</option>
+                  <option value="1000">Water (1000 kg/m³)</option>
+                  <option value="1260">Glycerin (1260 kg/m³)</option>
+                </select>
+              </label>
+            </div>
+
+            <div className="p-4 bg-indigo-50 rounded-xl border border-indigo-100">
+              <h4 className="text-[10px] font-bold text-indigo-400 uppercase mb-2">Observation</h4>
+              <p className="text-xs text-indigo-900 leading-relaxed">
+                Notice how the <strong>Throat Pressure</strong> drops significantly as you increase the velocity or decrease the constriction ratio. This is the Venturi effect in action!
+              </p>
+            </div>
+          </div>
+
+          <VenturiSimulation params={params} />
         </div>
       </div>
     )
@@ -1558,7 +1642,7 @@ function VenturiSection7({ onNext, onPrev, trials, setTrials, flowRate, slidePre
         <div className="mt-10 flex justify-between items-center">
           <button onClick={onPrev} className="btn-secondary">Back</button>
           <span className="text-[10px] font-bold text-slate-400 tracking-widest uppercase">Slide {slidePrefix}.1</span>
-          <button onClick={onNext} className="btn-primary" disabled={trials.length < 3}>Next: Analysis</button>
+          <button onClick={onNext} className="btn-primary">Next: Analysis</button>
         </div>
       </div>
     </motion.div>
@@ -1665,7 +1749,7 @@ function VenturiSection9({ onNext, onPrev, slidePrefix }: any) {
         <div className="mt-10 flex justify-between items-center">
           <button onClick={onPrev} className="btn-secondary">Back</button>
           <span className="text-[10px] font-bold text-slate-400 tracking-widest uppercase">Slide {slidePrefix}.1</span>
-          <button onClick={onNext} className="btn-primary" disabled={!answered}>Finish Lab</button>
+          <button onClick={onNext} className="btn-primary">Finish Lab</button>
         </div>
       </div>
     </motion.div>
@@ -2160,7 +2244,7 @@ function Section3({
           onComplete={onNext} 
           onPrevSection={onPrev} 
           slidePrefix={slidePrefix} 
-          nextDisabled={!predictionMade}
+          nextDisabled={false}
         />
       </div>
     </motion.div>
@@ -2524,10 +2608,9 @@ function Section6({ onNext, onPrev, slidePrefix }: any) {
           <span className="text-[10px] font-bold text-slate-400 tracking-widest uppercase">Slide {slidePrefix}.1</span>
           <button 
             onClick={onNext} 
-            disabled={!isComplete}
-            className={`btn-primary flex items-center gap-2 ${!isComplete ? 'opacity-50 cursor-not-allowed' : ''}`}
+            className="btn-primary flex items-center gap-2"
           >
-            {!isComplete ? <Lock size={18} /> : <CheckCircle2 size={18} />}
+            <CheckCircle2 size={18} />
             View Procedure <ChevronRight size={20} />
           </button>
         </div>
@@ -2807,11 +2890,10 @@ function Section8({ trials, setTrials, currentData, onNext, onPrev, slidePrefix 
           <button onClick={onPrev} className="btn-secondary">Back</button>
           <button 
             onClick={onNext} 
-            disabled={trials.length < 5 || !hasAllRegimes}
-            className={`btn-primary flex items-center gap-2 ${trials.length < 5 || !hasAllRegimes ? 'opacity-50 cursor-not-allowed' : ''}`}
+            className="btn-primary flex items-center gap-2"
           >
-            {trials.length < 5 || !hasAllRegimes ? <Lock size={18} /> : <CheckCircle2 size={18} />}
-            Continue to Analysis {(!hasAllRegimes && trials.length >= 5) ? "(Cover all regimes)" : (trials.length < 5 ? `(${trials.length}/5)` : "")} <ChevronRight size={20} />
+            <CheckCircle2 size={18} />
+            Continue to Analysis <ChevronRight size={20} />
           </button>
         </div>
       </div>
@@ -2911,10 +2993,9 @@ function Section9Numerical({ onNext, onPrev, slidePrefix }: any) {
           <span className="text-[10px] font-bold text-slate-400 tracking-widest uppercase">Slide {slidePrefix}.1</span>
           <button 
             onClick={onNext} 
-            disabled={!isComplete}
             className="btn-primary flex items-center gap-2"
           >
-            {!isComplete ? <Lock size={18} /> : <CheckCircle2 size={18} />}
+            <CheckCircle2 size={18} />
             Continue to Theory <ChevronRight size={20} />
           </button>
         </div>
@@ -3010,10 +3091,9 @@ function Section10ForceRatio({ onNext, onPrev, slidePrefix }: any) {
           <span className="text-[10px] font-bold text-slate-400 tracking-widest uppercase">Slide {slidePrefix}.1</span>
           <button 
             onClick={onNext} 
-            disabled={!hasRead}
-            className={`btn-primary flex items-center gap-2 ${!hasRead ? 'opacity-50 cursor-not-allowed' : ''}`}
+            className="btn-primary flex items-center gap-2"
           >
-            {hasRead ? "Test Your Knowledge" : "Read Theory to Continue"} <ChevronRight size={20} />
+            Test Your Knowledge <ChevronRight size={20} />
           </button>
         </div>
       </div>
